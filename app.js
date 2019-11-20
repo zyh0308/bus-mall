@@ -14,7 +14,7 @@ function Product(name, imgUrl){
     this.imgUrl = imgUrl;
     this.clickCounter = 0;
     this.shownCounter =0;
-    //Create array 
+     //Create array 
     Product.all.push(this);
 };
 Product.all =[];
@@ -62,8 +62,7 @@ var allProductContatinerElement= document.getElementById('all_Products')
 
 
 var shuffle = function(productArray){ 
-  
-//make a shuffle function
+
 
 }
 
@@ -83,7 +82,7 @@ Product.getSafeRandom = function(forbidden=[]){
 }
 
 
-//random pic
+//random
 var renderNewProducts = function(){
     firstImgElement.src= firstProductOnThePage.imgUrl;
     secondImgElement.src= secondProductOnThePage.imgUrl;
@@ -152,6 +151,23 @@ function clickHandler(event){
         // thirdImgElement.removeEventListener('click', clickHandler);
         all_Products.removeEventListener('click', clickHandler);
         makeProductChart();
+
+        var storeClickData = function(){
+            var clicks;
+        if(Product.voteMax === 25){
+            localStorage.setItem('Product.all', JSON.stringify(Product.all));
+            clicks=JSON.parse(localStorage.getItem(Product.all));
+        }
+        return clicks;
+        
+        }
+        
+        
+        storeClickData();
+        
+
+
+
     }
 
 }
@@ -214,7 +230,7 @@ function makeProductChart(){
                 borderColor: 'rgb(255, 99, 132)',
             },{
                 label:'# of Views',
-                data: productLikesArray,
+                data: productShownArray,
                 backgroundColor: 'rgb(54, 162, 235)',
                 borderColor: 'rgb(255, 99, 132)',
             }]
@@ -223,5 +239,19 @@ function makeProductChart(){
         
       
     })
-
 }
+
+// // json
+// var storeClickData = function(){
+//     var clicks;
+// if(Product.voteMax === 25){
+//     localStorage.setItem('Product.all', JSON.stringify(Product.all));
+//     clicks=JSON.parse(localStorage.getItem(Product.all));
+// }
+// return clicks;
+
+// }
+
+
+// storeClickData();
+
