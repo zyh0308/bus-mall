@@ -1,4 +1,12 @@
 'use strict'
+//global variables
+var likeCounter = 0;
+var workingProducts = [];
+var firstProductThatIsOnThePage;
+var secondProductThatIsOnThePage;
+var thirdProductThatIsOnThePage;
+var previouslyPickedProduct=[];
+
 //constructor function
 
 function Product(name, imgUrl){
@@ -7,9 +15,9 @@ function Product(name, imgUrl){
     this.clickCounter = 0;
     this.shownCounter =0;
     //Create array 
-    Product.allImages.push(this);
+    Product.all.push(this);
 };
-Product.allImages =[];
+Product.all =[];
 
 
 // global vote counters
@@ -21,9 +29,6 @@ Product.voteMax = 25;
 Product.prototype.increaseClickCounter = function(){
     this.clickCounter++;
 }
-// Product.prototype.increaseShownCounter = function(){
-//     this.shownCounter++;
-// }
 
 //variables for three products
 
@@ -53,16 +58,39 @@ var thirdImgElement = document.getElementById('third_product_img');
 var thirdProductNameElement=document.getElementById('third_product_h2');
 // thirdProductNameElement.textContent= thirdProduct.name;
 
+var allProductContatinerElement= document.getElementById('all_Products')
+
+
+var shuffle = function(productArray){ 
+  
+//make a shuffle function
+
+}
+
+
+Product.getSafeRandom = function(forbidden=[]){
+
+    if (workingProducts.length == 0){
+        workingProducts = Product.all.slice();
+        shuffle(workingProducts);
+    }
+    var product = workingProducts.pop();
+    while(forbidden.includes(product)){
+        workingProducts.unshift(product);
+        product = workingProducts.pop();
+    }
+    return product;
+}
 
 
 //random pic
-var renderNewProducts = function(firstIndex,secondIndex,thirdIndex){
-    firstImgElement.src= Product.allImages [firstIndex].imgUrl;
-    secondImgElement.src= Product.allImages [secondIndex].imgUrl;
-    thirdImgElement.src= Product.allImages [thirdIndex].imgUrl;
-    firstProductNameElement.textContent= Product.allImages [firstIndex].name;
-    secondProductNameElement.textContent= Product.allImages [secondIndex].name;
-    thirdProductNameElement.textContent= Product.allImages [thirdIndex].name;
+var renderNewProducts = function(){
+    firstImgElement.src= firstProductOnThePage.imgUrl;
+    secondImgElement.src= secondProductOnThePage.imgUrl;
+    thirdImgElement.src= thirdProductOnThePage.imgUrl;
+    firstProductNameElement.textContent= firstProductOnThePage.name;
+    secondProductNameElement.textContent= secondProductOnThePage.name;
+    thirdProductNameElement.textContent= thirdProductOnThePage.name;
 }
 
 var firstProductOnThePage = null;
@@ -70,63 +98,70 @@ var secondProductOnThePage = null;
 var thirdProductOnThePage = null;
 
 var pickNewProduct = function(){
-    var firstIndex = Math.floor(Math.random()*Product.allImages.length);
-    do {
-        var secondIndex = Math.floor(Math.random()*Product.allImages.length);
-        var thirdIndex = Math.floor(Math.random()*Product.allImages.length);
-    } while (firstIndex === secondIndex === thirdIndex);
-    console.log(Product.allImages[firstIndex].name,Product.allImages[secondIndex].name,Product.allImages[thirdIndex].name)
-    firstProductOnThePage = Product.allImages[firstIndex];
-    secondProductOnThePage = Product.allImages[secondIndex];
-    thirdProductOnThePage = Product.allImages[thirdIndex];
-
-    renderNewProducts(firstIndex,secondIndex,thirdIndex);
+    
+    // var firstIndex = Math.floor(Math.random()*Product.allImages.length);
+    // do {
+    //     var secondIndex = Math.floor(Math.random()*Product.allImages.length);
+    //     var thirdIndex = Math.floor(Math.random()*Product.allImages.length);
+    // } while (firstIndex === secondIndex === thirdIndex);
+    // // console.log(Product.allImages[firstIndex].name,Product.allImages[secondIndex].name,Product.allImages[thirdIndex].name)
+    firstProductOnThePage = Product.getSafeRandom();
+    secondProductOnThePage = Product.getSafeRandom();
+    thirdProductOnThePage = Product.getSafeRandom();
+    console.log('firstProductOnThePage:',firstProductOnThePage)
+    renderNewProducts();
 
 }
 
 //add listener 
-firstImgElement.addEventListener('click',clickHandler);
-secondImgElement.addEventListener('click',clickHandler);
-thirdImgElement.addEventListener('click',clickHandler);
+// firstImgElement.addEventListener('click',clickHandler);
+// secondImgElement.addEventListener('click',clickHandler);
+// thirdImgElement.addEventListener('click',clickHandler);
+all_Products.addEventListener('click',clickHandler);
 
 
 //create function for clikhandler 
 function clickHandler(event){
     var id = event.target.id;
 
-    firstProduct.shownCounter++;
-    secondProduct.shownCounter++;
-    thirdProduct.shownCounter++;
+    firstProductOnThePage.shownCounter++;
+    secondProductOnThePage.shownCounter++;
+    thirdProductOnThePage.shownCounter++;
     
     if (id == 'first_product_img' ){
-        firstProduct.increaseClickCounter();
-    }else if ('second_product_img'){
-        secondProduct.increaseClickCounter();
-    }else if ('third_product_img'){
-        thirdProduct.increaseClickCounter();
+        firstProductOnThePage.increaseClickCounter();
+    }else if (id == 'second_product_img'){
+        secondProductOnThePage.increaseClickCounter();
+    }else if (id == 'third_product_img'){
+        thirdProductOnThePage.increaseClickCounter();
     }
 
     Product.voteCtr++
 
-    console.log('firstProduct.clickCounter:', firstProduct.clickCounter,firstProduct.shownCounter);
-    console.log('secondProduct.clickCounter:', secondProduct.clickCounter,secondProduct.shownCounter);
-    console.log('thirdProduct.clickCounter:', thirdProduct.clickCounter,thirdProduct.shownCounter);
-    console.log('Product.voteCtr : ', Product.voteCtr);
+    // console.log('firstProduct.clickCounter:', firstProduct.clickCounter,firstProduct.shownCounter);
+    // console.log('secondProduct.clickCounter:', secondProduct.clickCounter,secondProduct.shownCounter);
+    // console.log('thirdProduct.clickCounter:', thirdProduct.clickCounter,thirdProduct.shownCounter);
+    // console.log('Product.voteCtr : ', Product.voteCtr);
 
-    if(Product.voteCtr == Product.voteMax){
-        firstImgElement.removeEventListener('click', clickHandler);
-        secondImgElement.removeEventListener('click', clickHandler);
-        thirdImgElement.removeEventListener('click', clickHandler);
+    pickNewProduct();
+
+    if(Product.voteCtr === Product.voteMax){
+        console.log('ALL :', Product.all);
+        // firstImgElement.removeEventListener('click', clickHandler);
+        // secondImgElement.removeEventListener('click', clickHandler);
+        // thirdImgElement.removeEventListener('click', clickHandler);
+        all_Products.removeEventListener('click', clickHandler);
+        makeProductChart();
     }
 
 }
 
 
-new Product('bag','images/bag.jpg');
-new Product('banana','images/banana.jpg');
+// new Product('bag','images/bag.jpg');
+// new Product('banana','images/banana.jpg');
 new Product('bathroom','images/bathroom.jpg');
 new Product('boots','images/boots.jpg');
-new Product('breakfast','images/breakfast.jpg');
+// new Product('breakfast','images/breakfast.jpg');
 new Product('bubblegum','images/bubblegum.jpg');
 new Product('chair','images/chair.jpg');
 new Product('cthulhu', 'images/cthulhu.jpg');
@@ -143,3 +178,50 @@ new Product('water-can','images/water-can.jpg');
 new Product('wine-glass','images/wine-glass.jpg');
 
 pickNewProduct();
+
+
+//chart 
+function makeProductChart(){
+    var productNameArray =[];
+    var productLikesArray =[];
+    var productShownArray =[];
+
+
+    for(var i =0;i<Product.all.length;i++){
+        var singleProductName = Product.all[i].name;
+        // console.log('singleProductName :', productNameArray);
+        productNameArray.push(singleProductName);
+    }
+    console.log('productNameArray :', productNameArray);
+    for (var i=0;i<Product.all.length;i++){
+        var singleProductLikes = Product.all[i].clickCounter;
+        productLikesArray.push(singleProductLikes)
+    }
+    for (var i=0;i<Product.all.length;i++){
+        var singleProductShown = Product.all[i].shownCounter;
+        productShownArray.push(singleProductShown)
+    }
+    
+    var canvas = document.getElementById('productChart').getContext('2d');
+    var productChart = new Chart(canvas,{
+        type:'bar',
+        data: {
+            labels: productNameArray,
+            datasets: [{
+                label:'# of Clicks',
+                data: productLikesArray,
+                backgroundColor: 'rgb(255, 99, 132)',
+                borderColor: 'rgb(255, 99, 132)',
+            },{
+                label:'# of Views',
+                data: productLikesArray,
+                backgroundColor: 'rgb(54, 162, 235)',
+                borderColor: 'rgb(255, 99, 132)',
+            }]
+        }
+
+        
+      
+    })
+
+}
